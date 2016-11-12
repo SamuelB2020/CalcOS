@@ -1,23 +1,37 @@
-#include "gpio.h"
 
+
+#include <string.h>
+#include <stdlib.h>
+
+#include "gpio.h"
+#include "rpi-systimer.h"
+
+/** GPIO Register set */
 volatile unsigned int* gpio = (unsigned int*)GPIO_BASE;
 
-volatile unsigned int tim;
-
-int main(void) __attribute__((naked));
-int main(void)
+/** Main function - we'll never return from here */
+void kernel_main( unsigned int r0, unsigned int r1, unsigned int atags )
 {
-    gpio[LED_GPFSEL] |= (1 << LED_GPFBIT);
+    int loop;
+
+    /* Write 1 to the GPIO init nibble in the Function Select GPIO peripheral register to enable
+       the LED pin an output */
+    gpio[LED_GPFSEL] |= ( 1 << LED_GPFBIT );
+
+    /* Never exit as there is no OS to exit to! */
     while(1)
     {
-        for(tim = 0; tim < 1000000; tim++)
-            ;
 
-        gpio[LED_GPCLR] = (1 << LED_GPIO_BIT);
+        /* Set the GPIO16 output high ( Turn OK LED off )*/
+        LED_OFF();
 
-        for(tim = 0; tim < 1000000; tim++)
-            ;
+        /* Wait half a second */
+        RPI_WaitMicroSeconds( 500000 );
 
-        gpio[LED_GPSET] = (1 << LED_GPIO_BIT);
+        /* Set the GPIO16 output low ( Turn OK LED on )*/
+        LED_ON();
+
+        /* Wait half a second */
+        RPI_WaitMicroSeconds( 500000 );
     }
 }
