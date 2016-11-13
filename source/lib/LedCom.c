@@ -1,4 +1,3 @@
-
 #include "gpio.h"
 volatile unsigned int* gpioController = (unsigned int*)GPIO_BASE;
 extern void LedInit(){
